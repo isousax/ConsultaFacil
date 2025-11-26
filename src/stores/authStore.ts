@@ -54,6 +54,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.setItem('auth_token', response.access_token);
       localStorage.setItem('refresh_token', response.refresh_token);
       localStorage.setItem('token_expires_at', expiresAt.toString());
+      localStorage.setItem('pending_verification_email', data.email);
 
       // Fetch full user profile
       const user = await authService.getProfile();
@@ -70,6 +71,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       // Schedule token refresh
       get().scheduleTokenRefresh();
+      
+      return response; // Return response for email redirect
     } catch (error) {
       const errorMessage = handleApiError(error);
       set({ isLoading: false, error: errorMessage });

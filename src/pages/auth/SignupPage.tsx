@@ -99,8 +99,10 @@ export const SignupPage = () => {
         birth_date: formData.birth_date || null,
         password: formData.password,
       });
-      navigate('/dashboard');
-    } catch (error) {
+      
+      // Redirect to email confirmation page
+      navigate(`/email-sent?email=${encodeURIComponent(formData.email)}`);
+    } catch {
       // Error is already handled by the store
     }
   };

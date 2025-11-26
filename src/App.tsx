@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/auth/LoginPage';
 import { SignupPage } from './pages/auth/SignupPage';
+import { EmailSentPage } from './pages/auth/EmailSentPage';
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
 import { ResendVerificationPage } from './pages/auth/ResendVerificationPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
@@ -20,6 +21,7 @@ function App() {
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/email-sent" element={<EmailSentPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/resend-verification" element={<ResendVerificationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

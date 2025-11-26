@@ -42,7 +42,7 @@ export const CodesPage = () => {
     try {
       await updateNow();
     } catch (err) {
-      // Error is handled by store
+      console.error(err);
     }
   };
 
@@ -55,7 +55,7 @@ export const CodesPage = () => {
     try {
       await deleteCode(code.id);
     } catch (err) {
-      // Error is handled by store
+      console.error(err);
     } finally {
       setDeletingId(null);
     }

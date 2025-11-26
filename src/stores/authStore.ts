@@ -71,8 +71,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       // Schedule token refresh
       get().scheduleTokenRefresh();
-      
-      return response; // Return response for email redirect
     } catch (error) {
       const errorMessage = handleApiError(error);
       set({ isLoading: false, error: errorMessage });

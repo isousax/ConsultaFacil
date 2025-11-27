@@ -6,6 +6,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Alert } from '../../components/ui/Alert';
 import { Card } from '../../components/ui/Card';
+import { SEO } from '../../components/SEO';
+import { SEO_CONFIG } from '../../config/seo';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -55,17 +57,23 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <Card className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white">
-            <span className="text-2xl font-bold">CF</span>
+    <>
+      <SEO
+        title={SEO_CONFIG.login.title}
+        description={SEO_CONFIG.login.description}
+        keywords={SEO_CONFIG.login.keywords}
+      />
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+        <Card className="w-full max-w-md">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white">
+              <span className="text-2xl font-bold">CF</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Bem-vindo de volta</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Faça login para acessar sua conta
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Bem-vindo de volta</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Faça login para acessar sua conta
-          </p>
-        </div>
 
         {error && (
           <Alert
@@ -150,5 +158,6 @@ export const LoginPage = () => {
         </div>
       </Card>
     </div>
+    </>
   );
 };

@@ -3,8 +3,14 @@ User-agent: *
 Allow: /
 
 # Disallow private/admin areas
-Disallow: /dashboard
-Disallow: /admin
+Disallow: /dashboard/*
+Disallow: /email-sent
+
+# Allow public pages
+Allow: /login
+Allow: /signup
+Allow: /terms
+Allow: /privacy
 
 # Allow all major search engines
 User-agent: Googlebot
@@ -16,5 +22,8 @@ Allow: /
 User-agent: Slurp
 Allow: /
 
+# Crawl delay
+Crawl-delay: 1
+
 # Sitemap location
-Sitemap: https://pixelaria.com.br/sitemap.xml
+Sitemap: https://consultafacil.com/sitemap.xml

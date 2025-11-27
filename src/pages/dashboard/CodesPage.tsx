@@ -10,6 +10,8 @@ import { exportCodesPdf } from '../../services/exportCodesPdf';
 import { RefreshCw, Trash2, Filter, Search, Download, Eye } from 'lucide-react';
 import type { CodeStatus, Code } from '../../types';
 import { clsx } from 'clsx';
+import { SEO } from '../../components/SEO';
+import { SEO_CONFIG } from '../../config/seo';
 
 const statusOptions: Array<{ value: CodeStatus | 'all'; label: string; count: number }> = [
   { value: 'all', label: 'Todos', count: 0 },
@@ -119,23 +121,29 @@ export const CodesPage = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-      {/* Header com stats */}
-      <div className="flex flex-col gap-4 sm:gap-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-            Meus Códigos
-          </h1>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2">
-            <p className="text-sm sm:text-base text-gray-600">
-              Total: <span className="font-semibold text-gray-900">{total}</span> código(s)
-            </p>
-            <div className="h-4 w-px bg-gray-300 hidden sm:block"></div>
-            <p className="text-sm sm:text-base text-gray-600">
-              Exibindo: <span className="font-semibold text-gray-900">{filteredCodes.length}</span>
-            </p>
+    <>
+      <SEO
+        title={SEO_CONFIG.codes.title}
+        description={SEO_CONFIG.codes.description}
+        keywords={SEO_CONFIG.codes.keywords}
+      />
+      <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+        {/* Header com stats */}
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              Meus Códigos
+            </h1>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2">
+              <p className="text-sm sm:text-base text-gray-600">
+                Total: <span className="font-semibold text-gray-900">{total}</span> código(s)
+              </p>
+              <div className="h-4 w-px bg-gray-300 hidden sm:block"></div>
+              <p className="text-sm sm:text-base text-gray-600">
+                Exibindo: <span className="font-semibold text-gray-900">{filteredCodes.length}</span>
+              </p>
+            </div>
           </div>
-        </div>
 
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <Button
@@ -383,5 +391,6 @@ export const CodesPage = () => {
         />
       )}
     </div>
+    </>
   );
 };

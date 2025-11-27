@@ -6,6 +6,8 @@ import { Input } from '../../components/ui/Input';
 import { Alert } from '../../components/ui/Alert';
 import { Card } from '../../components/ui/Card';
 import { Plus, Smartphone  } from 'lucide-react';
+import { SEO } from '../../components/SEO';
+import { SEO_CONFIG } from '../../config/seo';
 
 export const DashboardPage = () => {
   const { addCodes, isAdding } = useCodesStore();
@@ -52,23 +54,29 @@ export const DashboardPage = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25">
-            <Smartphone className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              Adicionar Código
-            </h1>
-            <p className="text-sm text-gray-600">
-              Cadastre e monitore seus códigos de consulta
-            </p>
+    <>
+      <SEO
+        title={SEO_CONFIG.dashboard.title}
+        description={SEO_CONFIG.dashboard.description}
+        keywords={SEO_CONFIG.dashboard.keywords}
+      />
+      <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+        {/* Header */}
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25">
+              <Smartphone className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Adicionar Código
+              </h1>
+              <p className="text-sm text-gray-600">
+                Cadastre e monitore seus códigos de consulta
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
       <div className="space-y-4">
         {/* Alertas */}
@@ -156,5 +164,6 @@ export const DashboardPage = () => {
         </Card>
       </div>
     </div>
+    </>
   );
 };

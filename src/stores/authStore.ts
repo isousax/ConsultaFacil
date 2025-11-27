@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   refreshToken: null,
   tokenExpiresAt: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true, // Start as loading to prevent premature redirects
   error: null,
   autoRefreshTimer: null,
 
@@ -238,7 +238,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     if (!token || !refreshToken || !userStr) {
       console.log('[AUTH] Missing credentials, setting unauthenticated');
-      set({ isAuthenticated: false, isLoading: false });
+      set({ 
+        user: null,
+        token: null,
+        refreshToken: null,
+        tokenExpiresAt: null,
+        isAuthenticated: false, 
+        isLoading: false 
+      });
       return;
     }
 

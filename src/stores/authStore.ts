@@ -105,14 +105,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     set({ isLoading: true });
+    const { refreshToken, autoRefreshTimer } = get();
+    
     try {
       // Clear auto-refresh timer
-      const { autoRefreshTimer } = get();
       if (autoRefreshTimer) {
         clearTimeout(autoRefreshTimer);
       }
 
-      await authService.logout();
+      // Send logout request with refresh_token if available
+      if (refreshToken) {
+        await authService.logout(refreshToken);
+      }
 
       // Clear localStorage
       localStorage.removeItem('auth_token');
@@ -131,7 +135,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
         autoRefreshTimer: null,
       });
-    } catch {
+    } catch (error) {
+      console.error('Logout error:', error);
       // Even if logout fails, clear local state
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
@@ -144,6 +149,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         refreshToken: null,
         tokenExpiresAt: null,
         isAuthenticated: false,
+        isLoading: false,
         autoRefreshTimer: null,
       });
     }

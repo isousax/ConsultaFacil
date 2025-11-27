@@ -90,6 +90,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.setItem('auth_token', response.access_token);
       localStorage.setItem('refresh_token', response.refresh_token);
       localStorage.setItem('token_expires_at', expiresAt.toString());
+      
+      // Store remember preference - if true, keep session after browser close
+      if (data.remember) {
+        localStorage.setItem('remember_me', 'true');
+      } else {
+        localStorage.removeItem('remember_me');
+      }
 
       // Fetch full user profile
       const user = await authService.getProfile();
@@ -129,6 +136,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('token_expires_at');
       localStorage.removeItem('user');
+      localStorage.removeItem('remember_me');
 
       set({
         user: null,
@@ -141,12 +149,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         autoRefreshTimer: null,
       });
     } catch {
-      set({ isLoading: false });
       // Even if logout fails, clear local state
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('token_expires_at');
       localStorage.removeItem('user');
+      localStorage.removeItem('remember_me');
+      set({Storage.removeItem('user');
       set({
         user: null,
         token: null,
@@ -225,6 +234,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const refreshToken = localStorage.getItem('refresh_token');
     const userStr = localStorage.getItem('user');
     const expiresAtStr = localStorage.getItem('token_expires_at');
+    const rememberMe = localStorage.getItem('remember_me') === 'true';
 
     if (!token || !refreshToken || !userStr) {
       set({ 
@@ -247,19 +257,36 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const isAboutToExpire = tokenExpiresAt && tokenExpiresAt - now < 5 * 60 * 1000; // 5 minutes
 
     if (isExpired || isAboutToExpire) {
-      // Try to refresh token
-      try {
-        set({ 
-          isLoading: true,
-          user,
-          token,
-          refreshToken,
-          tokenExpiresAt,
-        });
-        await get().refreshTokens();
-        set({ isAuthenticated: true, isLoading: false });
-      } catch {
-        // Refresh failed, clear auth
+      // Only try to refresh if user chose "remember me"
+      if (rememberMe) {
+        try {
+          set({ 
+            isLoading: true,
+            user,
+            token,
+            refreshToken,
+            tokenExpiresAt,
+          });
+          await get().refreshTokens();
+          set({ isAuthenticated: true, isLoading: false });
+        } catch {
+          // Refresh failed, clear auth
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('token_expires_at');
+          localStorage.removeItem('user');
+          localStorage.removeItem('remember_me');
+          set({
+            user: null,
+            token: null,
+            refreshToken: null,
+            tokenExpiresAt: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      } else {
+        // Token expired and user didn't want to be remembered, clear auth
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('token_expires_at');

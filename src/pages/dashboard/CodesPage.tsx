@@ -6,6 +6,7 @@ import { Alert } from '../../components/ui/Alert';
 import { Card } from '../../components/ui/Card';
 import { TableSkeleton, CardListSkeleton } from '../../components/ui/Skeleton';
 import { CodeDetailsModal } from '../../components/codes/CodeDetailsModal';
+import { exportCodesPdf } from '../../services/exportCodesPdf';
 import { RefreshCw, Trash2, Filter, Search, Download, Eye } from 'lucide-react';
 import type { CodeStatus, Code } from '../../types';
 import { clsx } from 'clsx';
@@ -41,10 +42,16 @@ export const CodesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCode, setSelectedCode] = useState<Code | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     loadCodes();
   }, [loadCodes]);
+
+  const filteredCodes = codes.filter(code => 
+    code.code.includes(searchTerm) || 
+    (code.name && code.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const handleViewDetails = (code: Code) => {
     setSelectedCode(code);
@@ -61,6 +68,27 @@ export const CodesPage = () => {
       await updateNow();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleExport = async () => {
+    if (codes.length === 0) return;
+    
+    setIsExporting(true);
+    try {
+      await exportCodesPdf(filteredCodes, {
+        filename: 'meus-codigos.pdf',
+        title: 'Meus Códigos de Consulta',
+        includeStatus: true,
+        groupByStatus: false,
+        showSummary: true,
+        onProgress: (phase) => console.log(phase),
+      });
+    } catch (err) {
+      console.error('Erro ao exportar PDF:', err);
+      alert('Erro ao gerar PDF. Tente novamente.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -90,11 +118,6 @@ export const CodesPage = () => {
     }).format(date);
   };
 
-  const filteredCodes = codes.filter(code => 
-    code.code.includes(searchTerm) || 
-    (code.name && code.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header com stats */}
@@ -118,10 +141,13 @@ export const CodesPage = () => {
           <Button
             variant="secondary"
             size="sm"
+            onClick={handleExport}
+            isLoading={isExporting}
+            disabled={codes.length === 0 || isExporting}
             className="w-full sm:w-auto"
           >
             <Download className="mr-2 h-4 w-4" />
-            Exportar
+            Exportar PDF
           </Button>
           <Button
             onClick={handleUpdateNow}
@@ -221,7 +247,7 @@ export const CodesPage = () => {
                           {code.code}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 break-words line-clamp-2">
+                      <p className="text-sm text-gray-600 wrap-break-word line-clamp-2">
                         {code.name || <span className="italic text-gray-400">Sem descrição</span>}
                       </p>
                     </div>

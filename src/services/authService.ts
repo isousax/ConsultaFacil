@@ -39,9 +39,14 @@ export const authService = {
   },
 
   // Resend email verification
-  resendVerification: async (data: ResendVerificationRequest): Promise<{ ok: boolean; message: string }> => {
-    const response = await apiClient.post<{ ok: boolean; message: string }>('/auth/resend-verification', data);
+  resendVerification: async (data: ResendVerificationRequest): Promise<{ ok: boolean; message: string; retry_after?: number }> => {
+    const response = await apiClient.post<{ ok: boolean; message: string; retry_after?: number }>('/auth/resend-verification', data);
     return response.data;
+  },
+
+  // Helper to resend verification email (simplified)
+  resendVerificationEmail: async (email: string): Promise<{ ok: boolean; message: string; retry_after?: number }> => {
+    return authService.resendVerification({ email });
   },
 
   // Confirm email with token

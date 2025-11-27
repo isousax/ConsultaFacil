@@ -45,32 +45,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (data: RegisterRequest) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authService.register(data);
+      // Register user - this creates the account but doesn't authenticate yet
+      // User needs to verify email before they can login
+      await authService.register(data);
 
-      // Calculate expiration timestamp
-      const expiresAt = Date.now() + response.expires_in * 1000;
-
-      // Store in localStorage
-      localStorage.setItem('auth_token', response.access_token);
-      localStorage.setItem('refresh_token', response.refresh_token);
-      localStorage.setItem('token_expires_at', expiresAt.toString());
+      // Store email for resend functionality
       localStorage.setItem('pending_verification_email', data.email);
 
-      // Fetch full user profile
-      const user = await authService.getProfile();
-      localStorage.setItem('user', JSON.stringify(user));
-
-      set({
-        user,
-        token: response.access_token,
-        refreshToken: response.refresh_token,
-        tokenExpiresAt: expiresAt,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-
-      // Schedule token refresh
-      get().scheduleTokenRefresh();
+      // Don't fetch profile or store tokens yet - user must verify email first
+      set({ isLoading: false });
     } catch (error) {
       const errorMessage = handleApiError(error);
       set({ isLoading: false, error: errorMessage });

@@ -34,13 +34,13 @@ export function EmailSentPage() {
     setResendSuccess(false);
 
     try {
-      await authService.resendVerification({ email });
+      const response = await authService.resendVerificationEmail(email);
       setResendSuccess(true);
       
-      // Set cooldown (padrão 60s, ou usa Retry-After se disponível)
-      const cooldownTime = retryAfter || 60;
+      // Use retry_after from response, or default to 60s
+      const cooldownTime = response.retry_after || 60;
       setCooldown(cooldownTime);
-      setRetryAfter(null);
+      setRetryAfter(cooldownTime);
     } catch (err: any) {
       const errorMsg = handleApiError(err);
       setResendError(errorMsg);
@@ -52,9 +52,13 @@ export function EmailSentPage() {
           setCooldown(retrySeconds);
           setRetryAfter(retrySeconds);
         }
-      } else if (err?.retryAfter) {
-        setCooldown(err.retryAfter);
-        setRetryAfter(err.retryAfter);
+      } else if (err?.response?.data?.retry_after) {
+        const retrySeconds = err.response.data.retry_after;
+        setCooldown(retrySeconds);
+        setRetryAfter(retrySeconds);
+      } else {
+        // Default cooldown on error
+        setCooldown(60);
       }
     } finally {
       setIsResending(false);

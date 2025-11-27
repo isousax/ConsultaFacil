@@ -5,7 +5,8 @@ import { Badge } from '../../components/ui/Badge';
 import { Alert } from '../../components/ui/Alert';
 import { Card } from '../../components/ui/Card';
 import { TableSkeleton, CardListSkeleton } from '../../components/ui/Skeleton';
-import { RefreshCw, Trash2, Filter, Search, Download } from 'lucide-react';
+import { CodeDetailsModal } from '../../components/codes/CodeDetailsModal';
+import { RefreshCw, Trash2, Filter, Search, Download, Eye } from 'lucide-react';
 import type { CodeStatus, Code } from '../../types';
 import { clsx } from 'clsx';
 
@@ -31,12 +32,24 @@ export const CodesPage = () => {
     setSelectedStatus,
     clearError,
   } = useCodesStore();
-
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCode, setSelectedCode] = useState<Code | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadCodes();
+  }, [loadCodes]);
+
+  const handleViewDetails = (code: Code) => {
+    setSelectedCode(code);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCode(null);
+  };
   }, [loadCodes]);
 
   const handleUpdateNow = async () => {
@@ -198,18 +211,6 @@ export const CodesPage = () => {
                   <div key={code.id} className="p-4 hover:bg-blue-50/30 transition-colors">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex-1 min-w-0 overflow-hidden">
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full shrink-0"></div>
-                          <span className="font-mono font-semibold text-gray-900 text-sm break-all">
-                            {code.code}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 break-words line-clamp-2">
-                          {code.name || <span className="italic text-gray-400">Sem descrição</span>}
-                        </p>
-                      </div>
-                      <Badge status={code.status} className="shrink-0" />
-                    </div>
                     <div className="space-y-1.5 text-xs text-gray-500 mb-3">
                       <div className="flex items-center justify-between">
                         <span>Última atualização:</span>
@@ -219,6 +220,28 @@ export const CodesPage = () => {
                         <span>Criado em:</span>
                         <span className="font-medium">{formatDate(code.createdAt)}</span>
                       </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleViewDetails(code)}
+                        className="flex-1"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Ver Detalhes
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDelete(code)}
+                        isLoading={deletingId === code.id}
+                        disabled={deletingId === code.id}
+                        className="bg-linear-to-r from-red-600 to-red-700 shadow-lg shadow-red-500/25"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                     </div>
                     <Button
                       variant="danger"
@@ -268,24 +291,41 @@ export const CodesPage = () => {
                     >
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="font-mono font-semibold text-gray-900">
-                            {code.code}
-                          </span>
+                      <td className="whitespace-nowrap px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleViewDetails(code)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleDelete(code)}
+                            isLoading={deletingId === code.id}
+                            disabled={deletingId === code.id}
+                            className="bg-linear-to-r from-red-600 to-red-700 shadow-lg shadow-red-500/25"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">
-                          {code.name || (
-                            <span className="italic text-gray-400">Sem descrição</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <Badge status={code.status} />
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                        {formatDate(code.lastUpdated)}
+          )}
+      </Card>
+
+      {/* Modal de Detalhes */}
+      {selectedCode && (
+        <CodeDetailsModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          codeId={selectedCode.id}
+          codeNumber={selectedCode.code}
+        />
+      )}
+    </div>
+  );
+};                      {formatDate(code.lastUpdated)}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                         {formatDate(code.createdAt)}

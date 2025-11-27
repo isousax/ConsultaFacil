@@ -7,163 +7,76 @@ export const AboutPage = () => {
       icon: Clock,
       title: 'Acompanhamento Automático',
       description:
-        'Não perca mais tempo verificando manualmente. Nosso sistema faz isso por você automaticamente.',
+        'Chega de ficar verificando código por código no site da prefeitura. O ConsultaFácil monitora tudo pra você de forma contínua.',
     },
     {
       icon: Zap,
-      title: 'Rápido e Eficiente',
+      title: 'Atualizações em Tempo Real',
       description:
-        'Adicione múltiplos códigos de uma vez e receba atualizações em tempo real.',
+        'Adicione quantos códigos quiser e acompanhe todos em um só lugar. Se algo mudar, você fica sabendo na hora.',
     },
     {
       icon: Shield,
-      title: 'Seguro e Confiável',
+      title: 'Privacidade e Segurança',
       description:
-        'Seus dados são protegidos e apenas você tem acesso aos seus códigos de consulta.',
+        'Todos os códigos são criptografados e armazenados com segurança. Apenas você pode visualizar seus dados.',
     },
     {
       icon: CheckCircle,
-      title: 'Fácil de Usar',
+      title: 'Simples e Intuitivo',
       description:
-        'Interface intuitiva e simples. Comece a usar em menos de 1 minuto.',
+        'Criado para pessoas comuns. Não precisa entender de tecnologia — basta fazer login e começar.',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <a href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold">
-              CF
-            </div>
-            <span className="text-xl font-bold text-gray-900">
-              ConsultaFácil
-            </span>
-          </a>
-        </div>
-      </div>
-
+    <div className="space-y-8 p-4 sm:p-6 max-w-6xl mx-auto">
       {/* Hero Section */}
-      <div className="bg-linear-to-br from-blue-600 to-blue-800 py-20 text-white">
-        <div className="container mx-auto px-4">
+      <div className="bg-linear-to-br from-blue-600 to-blue-800 py-12 sm:py-16 text-white rounded-2xl shadow-xl">
+        <div className="px-6 sm:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="mb-6 text-4xl font-bold md:text-5xl">
               Sobre o ConsultaFácil
             </h1>
             <p className="text-xl text-blue-100">
-              A solução definitiva para gerenciar e acompanhar códigos de
-              consultas médicas de forma simples e eficiente.
+              O ConsultaFácil nasceu para resolver um problema real: a dificuldade de acompanhar códigos de consulta no site oficial da prefeitura. 
+              Criamos uma plataforma que salva seus códigos, monitora automaticamente o status e te avisa quando houver qualquer mudança.
+              Simples, rápido e confiável.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Problem Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="mx-auto max-w-4xl">
-          <Card className="mb-8">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">
-              O Problema que Resolvemos
-            </h2>
-            <div className="space-y-4 text-gray-700">
-              <p>
-                Muitas pessoas enfrentam o desafio de acompanhar o status de
-                múltiplas consultas médicas agendadas. Verificar manualmente
-                cada código em diferentes sistemas pode ser:
-              </p>
-              <ul className="ml-6 list-disc space-y-2">
-                <li>
-                  <strong>Demorado:</strong> Acessar múltiplos sites e inserir
-                  códigos um por um.
-                </li>
-                <li>
-                  <strong>Frustrante:</strong> Não saber quando o status muda
-                  sem verificar constantemente.
-                </li>
-                <li>
-                  <strong>Desorganizado:</strong> Perder códigos importantes ou
-                  esquecer de verificar.
-                </li>
-              </ul>
+      {/* Features */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {features.map((feature, index) => (
+          <Card
+            key={index}
+            className="flex flex-col items-start gap-4 p-6 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="rounded-xl bg-blue-100 p-3 text-blue-700">
+              <feature.icon size={26} />
             </div>
+            <h3 className="text-xl font-semibold text-gray-900">
+              {feature.title}
+            </h3>
+            <p className="text-gray-600">{feature.description}</p>
           </Card>
-
-          <Card className="mb-12 bg-blue-50">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">
-              Nossa Solução
-            </h2>
-            <p className="text-gray-700">
-              O <strong>ConsultaFácil</strong> centraliza todos os seus códigos
-              de consulta em um único lugar. Adicione seus códigos e deixe que
-              nosso sistema verifique automaticamente o status de cada um,
-              notificando você sobre qualquer mudança. Simples, rápido e
-              eficiente.
-            </p>
-          </Card>
-
-          {/* Features Grid */}
-          <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
-            Por que usar o ConsultaFácil?
-          </h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            {features.map((feature, index) => (
-              <Card key={index}>
-                <div className="flex gap-4">
-                  <div className="shrink-0">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                      <feature.icon className="h-6 w-6 text-blue-600" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="mb-2 font-semibold text-gray-900">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="mt-12 text-center">
-            <Card className="bg-linear-to-r from-blue-600 to-blue-700 text-white">
-              <h2 className="mb-4 text-2xl font-bold">
-                Pronto para simplificar sua vida?
-              </h2>
-              <p className="mb-6 text-blue-100">
-                Comece a usar o ConsultaFácil gratuitamente hoje mesmo.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <a
-                  href="/signup"
-                  className="rounded-lg bg-white px-6 py-3 font-semibold text-blue-600 transition-colors hover:bg-blue-50"
-                >
-                  Criar Conta Grátis
-                </a>
-                <a
-                  href="/login"
-                  className="rounded-lg border-2 border-white px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
-                >
-                  Fazer Login
-                </a>
-              </div>
-            </Card>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white py-6">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          © {new Date().getFullYear()} ConsultaFácil. Todos os direitos
-          reservados.
+      {/* Final Section */}
+      <Card className="bg-linear-to-br from-blue-50 to-white border-blue-100 shadow-lg">
+        <div className="text-center py-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+            Feito para facilitar sua vida
+          </h2>
+          <p className="text-gray-600 text-base sm:text-lg mb-6 max-w-2xl mx-auto">
+            Acompanhar suas consultas nunca deveria ser difícil. Com o ConsultaFácil, você mantém tudo organizado, automatizado
+            e acessível em qualquer lugar. É uma forma mais moderna e inteligente de cuidar da sua saúde.
+          </p>
         </div>
-      </footer>
+      </Card>
     </div>
   );
 };

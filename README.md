@@ -340,7 +340,7 @@ Propriedade da Pixelaria.
 ## 👥 Contato
 
 - Email: contato@pixelaria.com.br
-- WhatsApp: (11) 99999-9999
+- WhatsApp: (81) 99272-0219
 
 ---
 

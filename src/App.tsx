@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/auth/LoginPage';
 import { SignupPage } from './pages/auth/SignupPage';
 import { EmailSentPage } from './pages/auth/EmailSentPage';
@@ -13,8 +12,12 @@ import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { CodesPage } from './pages/dashboard/CodesPage';
 import { ChangePasswordPage } from './pages/dashboard/ChangePasswordPage';
 import { AboutPage } from './pages/AboutPage';
+import { HelpPage } from './pages/HelpPage';
+import { TermsPage } from './pages/TermsPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { useAuthStore } from './stores/authStore';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
   const loadStoredAuth = useAuthStore((state) => state.loadStoredAuth);
@@ -34,7 +37,6 @@ function App() {
         <Route path="/resend-verification" element={<ResendVerificationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/about" element={<AboutPage />} />
 
         {/* Protected routes */}
         <Route
@@ -48,6 +50,10 @@ function App() {
           <Route index element={<DashboardPage />} />
           <Route path="codes" element={<CodesPage />} />
           <Route path="change-password" element={<ChangePasswordPage />} />
+          <Route path="help" element={<HelpPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="terms" element={<TermsPage />} />
+          <Route path="privacy" element={<PrivacyPage />} />
         </Route>
 
         {/* Redirect root to dashboard */}

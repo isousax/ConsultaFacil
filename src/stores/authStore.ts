@@ -254,7 +254,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       try {
         await get().refreshTokens();
         set({ isAuthenticated: true, isLoading: false });
-      } catch (error) {
+      } catch {
         // Refresh failed, clear auth
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');

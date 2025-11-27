@@ -29,3 +29,26 @@ export const TableSkeleton = ({ rows = 5 }: { rows?: number }) => {
     </div>
   );
 };
+
+export const CardListSkeleton = ({ rows = 3 }: { rows?: number }) => {
+  return (
+    <div className="divide-y divide-gray-200">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="p-4 space-y-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 space-y-2">
+              <Skeleton width="120px" height="16px" />
+              <Skeleton width="180px" height="14px" />
+            </div>
+            <Skeleton width="80px" height="24px" className="rounded-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton width="100%" height="12px" />
+            <Skeleton width="100%" height="12px" />
+          </div>
+          <Skeleton width="100%" height="36px" className="rounded-lg" />
+        </div>
+      ))}
+    </div>
+  );
+};

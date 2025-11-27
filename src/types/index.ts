@@ -18,6 +18,8 @@ export interface RegisterRequest {
   full_name: string;
   phone: string;
   birth_date?: string | null;
+  accept_terms: boolean;
+  accept_privacy: boolean;
 }
 
 export interface LoginRequest {

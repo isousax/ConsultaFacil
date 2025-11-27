@@ -18,6 +18,8 @@ export const SignupPage = () => {
     birth_date: '',
     password: '',
     confirmPassword: '',
+    acceptTerms: false,
+    acceptPrivacy: false,
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -30,6 +32,25 @@ export const SignupPage = () => {
     if (!/[0-9]/.test(pwd)) errors.push('Pelo menos 1 número');
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) errors.push('Pelo menos 1 caractere especial');
     return errors;
+  };
+
+  const formatPhoneNumber = (value: string): string => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos (DDD + número)
+    const limited = numbers.slice(0, 11);
+    
+    // Formata: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+    if (limited.length <= 2) {
+      return limited;
+    } else if (limited.length <= 6) {
+      return `(${limited.slice(0, 2)}) ${limited.slice(2)}`;
+    } else if (limited.length <= 10) {
+      return `(${limited.slice(0, 2)}) ${limited.slice(2, 6)}-${limited.slice(6)}`;
+    } else {
+      return `(${limited.slice(0, 2)}) ${limited.slice(2, 7)}-${limited.slice(7, 11)}`;
+    }
   };
 
   const validateForm = (): boolean => {
@@ -51,8 +72,11 @@ export const SignupPage = () => {
 
     if (!formData.phone) {
       errors.phone = 'Telefone é obrigatório';
-    } else if (!/^\+?55\s?\d{2}\s?\d{4,5}-?\d{4}$/.test(formData.phone.replace(/\s/g, ''))) {
-      errors.phone = 'Telefone inválido (use formato +55 XX XXXXX-XXXX)';
+    } else {
+      const digits = formData.phone.replace(/\D/g, '');
+      if (digits.length < 10 || digits.length > 11) {
+        errors.phone = 'Telefone deve ter 10 ou 11 dígitos';
+      }
     }
 
     if (formData.birth_date) {
@@ -79,6 +103,14 @@ export const SignupPage = () => {
       errors.confirmPassword = 'As senhas não coincidem';
     }
 
+    if (!formData.acceptTerms) {
+      errors.acceptTerms = 'Você deve aceitar os Termos de Uso';
+    }
+
+    if (!formData.acceptPrivacy) {
+      errors.acceptPrivacy = 'Você deve aceitar a Política de Privacidade';
+    }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -92,12 +124,18 @@ export const SignupPage = () => {
     }
 
     try {
+      // Adiciona +55 ao telefone antes de enviar
+      const digits = formData.phone.replace(/\D/g, '');
+      const phoneWithCountryCode = `+55${digits}`;
+      
       await register({
         full_name: formData.full_name,
         email: formData.email,
-        phone: formData.phone.replace(/\D/g, ''), // Remove non-digits
+        phone: phoneWithCountryCode,
         birth_date: formData.birth_date || null,
         password: formData.password,
+        accept_terms: formData.acceptTerms,
+        accept_privacy: formData.acceptPrivacy,
       });
       
       // Redirect to email confirmation page
@@ -155,22 +193,37 @@ export const SignupPage = () => {
             required
           />
 
-          <Input
-            label="Telefone"
-            type="tel"
-            value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            error={formErrors.phone}
-            placeholder="+55 11 98765-4321"
-            autoComplete="tel"
-            helperText="Formato: +55 XX XXXXX-XXXX"
-            required
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Telefone
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <span className="text-2xl">🇧🇷</span>
+                <span className="ml-2 text-sm text-gray-600 font-medium">+55</span>
+              </div>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => {
+                  const formatted = formatPhoneNumber(e.target.value);
+                  setFormData({ ...formData, phone: formatted });
+                }}
+                className={`block w-full pl-[88px] pr-3 py-2 border ${
+                  formErrors.phone ? 'border-red-300' : 'border-gray-300'
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
+                placeholder="(11) 98765-4321"
+                autoComplete="tel"
+                required
+              />
+            </div>
+            {formErrors.phone && (
+              <p className="mt-1 text-sm text-red-600">{formErrors.phone}</p>
+            )}
+          </div>
 
           <Input
-            label="Data de Nascimento (opcional)"
+            label="Data de Nascimento"
             type="date"
             value={formData.birth_date}
             onChange={(e) =>
@@ -178,7 +231,6 @@ export const SignupPage = () => {
             }
             error={formErrors.birth_date}
             autoComplete="bday"
-            helperText="Mínimo 18 anos"
           />
 
           <Input
@@ -191,7 +243,6 @@ export const SignupPage = () => {
             error={formErrors.password}
             placeholder="••••••••"
             autoComplete="new-password"
-            helperText="Mín. 8 caracteres, 1 maiúscula, 1 minúscula, 1 número, 1 especial"
             required
           />
 
@@ -214,6 +265,61 @@ export const SignupPage = () => {
               <li>Mínimo 8 caracteres</li>
               <li>Pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial</li>
             </ul>
+          </div>
+
+          {/* Termos e Políticas */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="acceptTerms"
+                checked={formData.acceptTerms}
+                onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+              />
+              <label htmlFor="acceptTerms" className="text-sm text-gray-700 cursor-pointer">
+                Li e aceito os{' '}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Termos de Uso
+                </a>
+                {' '}*
+              </label>
+            </div>
+            {formErrors.acceptTerms && (
+              <p className="text-sm text-red-600 ml-7">{formErrors.acceptTerms}</p>
+            )}
+
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="acceptPrivacy"
+                checked={formData.acceptPrivacy}
+                onChange={(e) => setFormData({ ...formData, acceptPrivacy: e.target.checked })}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+              />
+              <label htmlFor="acceptPrivacy" className="text-sm text-gray-700 cursor-pointer">
+                Li e aceito a{' '}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Política de Privacidade
+                </a>
+                {' '}*
+              </label>
+            </div>
+            {formErrors.acceptPrivacy && (
+              <p className="text-sm text-red-600 ml-7">{formErrors.acceptPrivacy}</p>
+            )}
           </div>
 
           <Button

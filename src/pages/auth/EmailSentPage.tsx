@@ -131,10 +131,14 @@ export function EmailSentPage() {
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold shrink-0">3.</span>
-                <span>Clique no link de confirmação</span>
+                <span><strong>Verifique também a pasta de SPAM/Lixo Eletrônico</strong></span>
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold shrink-0">4.</span>
+                <span>Clique no link de confirmação</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold shrink-0">5.</span>
                 <span>Retorne aqui e faça login</span>
               </li>
             </ol>

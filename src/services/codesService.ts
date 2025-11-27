@@ -1,4 +1,4 @@
-// import apiClient from './api'; // Descomentar quando integrar com backend real
+import codesApiClient from './codesApiClient';
 import type {
   Code,
   AddCodeRequest,
@@ -10,8 +10,9 @@ import type {
   CodeStatus,
 } from '../types';
 
-// Mock data storage
+// Mock data storage (fallback)
 const MOCK_CODES_KEY = 'consultafacil_mock_codes';
+const USE_MOCK = false; // Set to true to use mock data
 
 // Helper to get mock codes
 const getMockCodes = (): Code[] => {
@@ -38,165 +39,173 @@ const generateRandomStatus = (): CodeStatus => {
 export const codesService = {
   // Add codes (single or multiple)
   addCodes: async (data: AddCodeRequest): Promise<AddCodeResponse> => {
-    // Mock implementation
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (USE_MOCK) {
+      // Mock implementation
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const codes = getMockCodes();
-    const userId = localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user')!).id
-      : 'unknown';
+      const codes = getMockCodes();
+      const userId = localStorage.getItem('user')
+        ? JSON.parse(localStorage.getItem('user')!).id
+        : 'unknown';
 
-    const added: Code[] = [];
-    const invalid: string[] = [];
+      const added: Code[] = [];
+      const invalid: string[] = [];
 
-    data.codes.forEach((item) => {
-      const trimmedCode = item.code.trim();
-      const trimmedName = item.name?.trim();
+      data.codes.forEach((item) => {
+        const trimmedCode = item.code.trim();
+        const trimmedName = item.name?.trim();
 
-      if (!isValidCode(trimmedCode)) {
-        invalid.push(trimmedCode);
-        return;
-      }
+        if (!isValidCode(trimmedCode)) {
+          invalid.push(trimmedCode);
+          return;
+        }
 
-      // Check if code already exists
-      if (codes.some((c) => c.code === trimmedCode && c.userId === userId)) {
-        invalid.push(`${trimmedCode} (já existe)`);
-        return;
-      }
+        // Check if code already exists
+        if (codes.some((c) => c.code === trimmedCode && c.userId === userId)) {
+          invalid.push(`${trimmedCode} (já existe)`);
+          return;
+        }
 
-      const newCode: Code = {
-        id: `code_${Date.now()}_${Math.random()}`,
-        code: trimmedCode,
-        name: trimmedName,
-        status: 'pending',
-        lastUpdated: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        userId,
+        const newCode: Code = {
+          id: `code_${Date.now()}_${Math.random()}`,
+          code: trimmedCode,
+          name: trimmedName,
+          status: 'pending',
+          lastUpdated: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          userId,
+        };
+
+        codes.push(newCode);
+        added.push(newCode);
+      });
+
+      saveMockCodes(codes);
+
+      return {
+        success: true,
+        added,
+        invalid,
+        message: `${added.length} código(s) adicionado(s) com sucesso`,
       };
+    }
 
-      codes.push(newCode);
-      added.push(newCode);
-    });
-
-    saveMockCodes(codes);
-
-    return {
-      success: true,
-      added,
-      invalid,
-      message: `${added.length} código(s) adicionado(s) com sucesso`,
-    };
-
-    // Real implementation:
-    // const response = await apiClient.post<AddCodeResponse>('/codes/add', data);
-    // return response.data;
+    // Real API implementation
+    const response = await codesApiClient.post<AddCodeResponse>('/api/codes', data);
+    return response.data;
   },
 
   // List codes with pagination and filter
   listCodes: async (params: CodesListParams = {}): Promise<CodesListResponse> => {
-    // Mock implementation
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    if (USE_MOCK) {
+      // Mock implementation
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
-    const { page = 1, limit = 10, status = 'all' } = params;
+      const { page = 1, limit = 10, status = 'all' } = params;
 
-    const allCodes = getMockCodes();
-    const userId = localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user')!).id
-      : 'unknown';
+      const allCodes = getMockCodes();
+      const userId = localStorage.getItem('user')
+        ? JSON.parse(localStorage.getItem('user')!).id
+        : 'unknown';
 
-    // Filter by user and status
-    let filtered = allCodes.filter((c) => c.userId === userId);
+      // Filter by user and status
+      let filtered = allCodes.filter((c) => c.userId === userId);
 
-    if (status !== 'all') {
-      filtered = filtered.filter((c) => c.status === status);
+      if (status !== 'all') {
+        filtered = filtered.filter((c) => c.status === status);
+      }
+
+      // Sort by most recent first
+      filtered.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      // Paginate
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedCodes = filtered.slice(startIndex, endIndex);
+
+      return {
+        codes: paginatedCodes,
+        total: filtered.length,
+        page,
+        limit,
+        hasMore: endIndex < filtered.length,
+      };
     }
 
-    // Sort by most recent first
-    filtered.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-
-    // Paginate
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedCodes = filtered.slice(startIndex, endIndex);
-
-    return {
-      codes: paginatedCodes,
-      total: filtered.length,
-      page,
-      limit,
-      hasMore: endIndex < filtered.length,
-    };
-
-    // Real implementation:
-    // const response = await apiClient.get<CodesListResponse>('/codes/list', { params });
-    // return response.data;
-  },
-
+    // Real API implementation
+    const response = await codesApiClient.get<CodesListResponse>('/api/codes', { params });
+    return response.data;
   // Delete a code
   deleteCode: async (codeId: string): Promise<DeleteCodeResponse> => {
-    // Mock implementation
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (USE_MOCK) {
+      // Mock implementation
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const codes = getMockCodes();
-    const userId = localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user')!).id
-      : 'unknown';
+      const codes = getMockCodes();
+      const userId = localStorage.getItem('user')
+        ? JSON.parse(localStorage.getItem('user')!).id
+        : 'unknown';
 
-    const index = codes.findIndex(
-      (c) => c.id === codeId && c.userId === userId
-    );
+      const index = codes.findIndex(
+        (c) => c.id === codeId && c.userId === userId
+      );
 
-    if (index === -1) {
-      throw new Error('Código não encontrado');
+      if (index === -1) {
+        throw new Error('Código não encontrado');
+      }
+
+      codes.splice(index, 1);
+      saveMockCodes(codes);
+
+      return {
+        success: true,
+        message: 'Código removido com sucesso',
+      };
     }
 
-    codes.splice(index, 1);
-    saveMockCodes(codes);
-
-    return {
-      success: true,
-      message: 'Código removido com sucesso',
-    };
-
-    // Real implementation:
-    // const response = await apiClient.delete<DeleteCodeResponse>(`/codes/${codeId}`);
+    // Real API implementation
+    const response = await codesApiClient.delete<DeleteCodeResponse>(`/api/codes/${codeId}`);
+    return response.data;
+  },// const response = await apiClient.delete<DeleteCodeResponse>(`/codes/${codeId}`);
     // return response.data;
-  },
-
   // Update all codes status now
   updateNow: async (): Promise<UpdateNowResponse> => {
-    // Mock implementation - simulates checking status with backend
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (USE_MOCK) {
+      // Mock implementation - simulates checking status with backend
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const codes = getMockCodes();
-    const userId = localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user')!).id
-      : 'unknown';
+      const codes = getMockCodes();
+      const userId = localStorage.getItem('user')
+        ? JSON.parse(localStorage.getItem('user')!).id
+        : 'unknown';
 
-    const updated: Code[] = [];
+      const updated: Code[] = [];
 
-    codes.forEach((code) => {
-      if (code.userId === userId) {
-        // Simulate status update
-        code.status = generateRandomStatus();
-        code.lastUpdated = new Date().toISOString();
-        updated.push(code);
-      }
-    });
+      codes.forEach((code) => {
+        if (code.userId === userId) {
+          // Simulate status update
+          code.status = generateRandomStatus();
+          code.lastUpdated = new Date().toISOString();
+          updated.push(code);
+        }
+      });
 
-    saveMockCodes(codes);
+      saveMockCodes(codes);
 
-    return {
-      success: true,
-      updated,
-      message: `${updated.length} código(s) atualizados`,
-    };
+      return {
+        success: true,
+        updated,
+        message: `${updated.length} código(s) atualizados`,
+      };
+    }
 
-    // Real implementation:
-    // const response = await apiClient.post<UpdateNowResponse>('/codes/update-now');
+    // Real API implementation
+    const response = await codesApiClient.post<UpdateNowResponse>('/api/codes/update-now');
+    return response.data;
+  },// const response = await apiClient.post<UpdateNowResponse>('/codes/update-now');
     // return response.data;
   },
 

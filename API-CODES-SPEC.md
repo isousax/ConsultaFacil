@@ -4,29 +4,6 @@
 
 O frontend envia requisições para gerenciar códigos de consulta médica. Cada código é numérico (8-11 dígitos) e pode ter um nome/descrição opcional.
 
----
-
-## 🔐 Autenticação
-
-Todas as requisições devem incluir o header:
-
-```http
-Authorization: Bearer {access_token}
-```
-
-**Respostas de erro de autenticação:**
-
-```json
-// 401 Unauthorized
-{
-  "error": "Token inválido",
-  "code": "INVALID_TOKEN",
-  "reason": "expired"
-}
-```
-
----
-
 ## 📝 1. Adicionar Código(s)
 
 ### **Endpoint**
@@ -65,26 +42,7 @@ Authorization: Bearer {access_token}
 }
 ```
 
-#### Cenário 3: Adicionar múltiplos códigos (futuramente)
-```json
-{
-  "codes": [
-    {
-      "code": "123456789",
-      "name": "Consulta Cardiologista"
-    },
-    {
-      "code": "987654321",
-      "name": "Exame de Sangue"
-    },
-    {
-      "code": "555555555"
-    }
-  ]
-}
-```
-
-### **Validações no Frontend (já implementadas)**
+### **Validações**
 - Código deve conter apenas números
 - Código deve ter entre 8 e 11 dígitos
 - Nome/descrição é opcional
@@ -110,26 +68,13 @@ Authorization: Bearer {access_token}
 }
 ```
 
-### **Response - Código já existe (201 Created com invalid)**
+### **Response - Código já existe (409 Conflict)**
 
 ```json
 {
-  "success": true,
-  "added": [
-    {
-      "id": "code_550e8400-e29b-41d4-a716-446655440002",
-      "code": "987654321",
-      "name": "Exame de Sangue",
-      "status": "pending",
-      "lastUpdated": "2024-11-26T10:30:00.000Z",
-      "createdAt": "2024-11-26T10:30:00.000Z",
-      "userId": "user_550e8400-e29b-41d4-a716-446655440000"
-    }
-  ],
-  "invalid": [
-    "123456789 (já existe)"
-  ],
-  "message": "1 código(s) adicionado(s) com sucesso"
+  "error": "Código duplicado",
+  "field": "codes[0].code",
+  "message": "O código já foi adicionado anteriormente."
 }
 ```
 
@@ -495,33 +440,6 @@ X-RateLimit-Reset: 1732632000
 
 ---
 
-## 🔄 Atualização Automática de Status
-
-### **Webhook (Opcional)**
-
-Se o backend implementar webhooks, pode notificar o frontend quando um status mudar:
-
-```
-POST /api/webhook/code-status-updated
-Authorization: Bearer {webhook_secret}
-```
-
-**Body:**
-```json
-{
-  "userId": "user_550e8400-e29b-41d4-a716-446655440000",
-  "codeId": "code_550e8400-e29b-41d4-a716-446655440001",
-  "code": "123456789",
-  "oldStatus": "pending",
-  "newStatus": "confirmed",
-  "timestamp": "2024-11-26T10:40:00.000Z"
-}
-```
-
-**Frontend:** Pode usar WebSocket ou polling para atualizar em tempo real.
-
----
-
 ## 📦 Resumo de Endpoints
 
 | Método | Endpoint | Descrição | Auth |
@@ -532,6 +450,28 @@ Authorization: Bearer {webhook_secret}
 | POST | `/api/codes/update-now` | Forçar atualização de status | ✅ |
 
 ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 🎯 Cenários de Teste
 

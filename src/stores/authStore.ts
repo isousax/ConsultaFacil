@@ -223,12 +223,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   loadStoredAuth: async () => {
+    console.log('[AUTH] Loading stored authentication...');
     const token = localStorage.getItem('auth_token');
     const refreshToken = localStorage.getItem('refresh_token');
     const userStr = localStorage.getItem('user');
     const expiresAtStr = localStorage.getItem('token_expires_at');
 
+    console.log('[AUTH] Stored data:', {
+      hasToken: !!token,
+      hasRefreshToken: !!refreshToken,
+      hasUser: !!userStr,
+      expiresAt: expiresAtStr,
+    });
+
     if (!token || !refreshToken || !userStr) {
+      console.log('[AUTH] Missing credentials, setting unauthenticated');
       set({ isAuthenticated: false, isLoading: false });
       return;
     }
@@ -236,25 +245,37 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const tokenExpiresAt = expiresAtStr ? parseInt(expiresAtStr, 10) : null;
     const user = JSON.parse(userStr) as User;
 
-    set({ 
-      isLoading: true,
-      user,
-      token,
-      refreshToken,
-      tokenExpiresAt,
-    });
+    console.log('[AUTH] User data loaded:', { email: user.email, id: user.id });
 
     // Check if token is expired or about to expire
     const now = Date.now();
     const isExpired = tokenExpiresAt && tokenExpiresAt < now;
     const isAboutToExpire = tokenExpiresAt && tokenExpiresAt - now < 5 * 60 * 1000; // 5 minutes
 
+    console.log('[AUTH] Token status:', {
+      now: new Date(now).toISOString(),
+      expiresAt: tokenExpiresAt ? new Date(tokenExpiresAt).toISOString() : 'unknown',
+      isExpired,
+      isAboutToExpire,
+      timeUntilExpiry: tokenExpiresAt ? Math.floor((tokenExpiresAt - now) / 1000 / 60) + ' minutes' : 'unknown',
+    });
+
     if (isExpired || isAboutToExpire) {
+      console.log('[AUTH] Token expired or about to expire, attempting refresh...');
       // Try to refresh token
       try {
+        set({ 
+          isLoading: true,
+          user,
+          token,
+          refreshToken,
+          tokenExpiresAt,
+        });
         await get().refreshTokens();
+        console.log('[AUTH] Token refresh successful');
         set({ isAuthenticated: true, isLoading: false });
-      } catch {
+      } catch (error) {
+        console.error('[AUTH] Token refresh failed:', error);
         // Refresh failed, clear auth
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
@@ -271,7 +292,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } else {
       // Token is still valid
-      set({ isAuthenticated: true, isLoading: false });
+      console.log('[AUTH] Token is valid, authenticating user');
+      set({ 
+        user,
+        token,
+        refreshToken,
+        tokenExpiresAt,
+        isAuthenticated: true, 
+        isLoading: false 
+      });
       get().scheduleTokenRefresh();
     }
   },
